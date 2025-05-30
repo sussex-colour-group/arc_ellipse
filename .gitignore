@@ -1,0 +1,13 @@
+# image files, which will change frequently - I may add them later though
+*.svg 
+*.png
+
+# MATLAB autosave files
+*.asv 
+
+# Data files
+
+/data/raw/psychophysics/*
+/data/raw/GoPro/*
+/data/raw/nanoLambda/*
+
