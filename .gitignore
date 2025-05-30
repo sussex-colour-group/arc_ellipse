@@ -11,3 +11,7 @@
 /data/raw/GoPro/*
 /data/raw/nanoLambda/*
 
+/data/processed/psychophysics/*
+/data/processed/GoPro/*
+/data/processed/nanoLambda/*
+

@@ -4,3 +4,6 @@
 [submodule "arc_ImageAnalysis"]
 	path = arc_ImageAnalysis
 	url = https://github.com/sussex-colour-group/arc_ImageAnalysis.git
+[submodule "Sussex_nanoLambda"]
+	path = Sussex_nanoLambda
+	url = https://github.com/sussex-colour-group/Sussex_nanoLambda.git

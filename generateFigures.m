@@ -20,9 +20,27 @@ saveLocation = ['.',filesep,'figs',filesep];
 %% Load preprocessed data
 
 data.GoPro = readmatrix([dataDir,filesep,'GoPro_sub.csv']); % generated in data/processed/scripts/preProcessGoPro.m
-%data.NL = load(paths.NLProcessedData,'MBarray_concat'); 
+
+data.NL_mb = readmatrix([dataDir,filesep,'nanoLambda',filesep,'NL_sub.csv']); % generated in data/processed/scripts/preProcessNL.m
+
 %data.HS = load(paths.HSProcessedData,'d'); 
 %data.PP = load(paths.PPProcessedData);
+
+%%
+
+[LogAxisRatioNCE, AxisRatioNormed, ~, ~, EllipseAngleUnnormed, ~, SemiMajorLength, SemiMinorLength] = ...
+    GetAxisRatio(data.NL_mb(:,3),data.NL_mb(:,3));
+
+EllipseArea = pi * SemiMajorLength * SemiMinorLength;
+
+% TODO Something is not working here
+
+figure,
+scatter(data.NL_mb(:,3),data.NL_mb(:,4))
+
+%%
+
+% Visualise ellipse
 
 %% Plots
 
