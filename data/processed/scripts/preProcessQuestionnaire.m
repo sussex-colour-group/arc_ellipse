@@ -6,6 +6,7 @@ clear, clc, close all
 
 dataDir = '/home/danny/Documents/Box/Norway Data Sharing/Questionnaire/data/';
 outputDir = ['..',filesep,'..',filesep,'processed',filesep,'questionnaire',filesep];
+outputFn = 'arc_SelectQData';
 
 addpath(genpath(['..',filesep,'..',filesep,'..',filesep,'arc_PsychophysicsAnalysis']));
 
@@ -21,8 +22,11 @@ columns = {'pcode',...
     'age (years)',...
     'gender recoded',...
     'testing location',...
-    'exclude birthplace',...
-    'Have you been outside of Norway in the past month?',...
-    'Have you been outside of the local area, but within Norway in the past month?'};
+    'Above or below arctic circle'};
 
-jm_questionnaire_puller(paths,outputDir,columns)
+jm_questionnaire_puller(paths,[outputDir,outputFn,'.csv'],columns)
+
+%% % for generating a "full" csv
+
+columns = "all";
+jm_questionnaire_puller(paths,[outputDir,outputFn,'_full.csv'],columns)
