@@ -7,3 +7,6 @@
 [submodule "Sussex_nanoLambda"]
 	path = Sussex_nanoLambda
 	url = https://github.com/sussex-colour-group/Sussex_nanoLambda.git
+[submodule "imageanalysis"]
+	path = imageanalysis
+	url = https://github.com/sussex-colour-group/imageanalysis.git
