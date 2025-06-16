@@ -85,3 +85,4 @@ tidyData(contains(concatNLdata.file,'Spring','IgnoreCase',true),2) = 4;
 tidyData(:,3:5) = MBarray;
 
 writematrix(tidyData,[saveDir,filesep,'NL_sub.csv']);
+writematrix(concatNLdata.when,[saveDir,filesep,'NL_when.csv'])
