@@ -10,3 +10,6 @@
 [submodule "nanolambda"]
 	path = nanolambda
 	url = https://github.com/sussex-colour-group/nanolambda.git
+[submodule "hyperspectralAnalysis"]
+	path = hyperspectralAnalysis
+	url = https://github.com/sussex-colour-group/hyperspectralAnalysis.git
