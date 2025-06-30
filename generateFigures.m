@@ -108,10 +108,11 @@ for location = [0,1]
 
             EllipseArea{location+1}(i) = pi * SemiMajorLength{location+1}(i) * SemiMinorLength{location+1}(i);
             else
-                error('bla');
+                error('bla'); % this is just to pass it onto the catch statement - there's probably a "correct" way to do this
             end
         catch %e
             % disp(e)
+            disp("Excluding: ")
             disp([num2str(location), '-',num2str(i)])
             disp(numel(when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),3)))
             
@@ -146,6 +147,7 @@ when_out = [when_locationSplit{1}.dataSubset(:,[1,2,6,8,9]); when_locationSplit{
 % Go Pro
 for i = 3:5
     arc_ellipseScatter_splitByLocationAndSeason(data.GoPro,meta,i)
+    title('GoPro')
     arc_saveFig([saveLocation,'ellipseScatter','_GoPro_',meta.variableNames{i}],meta)
 end
 
@@ -154,6 +156,7 @@ end
 
 for i = 3:5
     arc_ellipseScatter_splitByLocationAndSeason(when_out,meta,i)
+    title('NL')
     arc_saveFig([saveLocation,'ellipseScatter','_NL_',meta.variableNames{i}],meta)
 end
 
