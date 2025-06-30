@@ -15,13 +15,13 @@ fileList = rmfield(fileList,'FM_T');
 fileList = rmfield(fileList,'MondStats');
 fileList = rmfield(fileList,'DiscrStats');
 
-writetable(struct2table(fileList),['..',filesep,'GoPro.csv']);
+writetable(struct2table(fileList),['..',filesep,'GoPro',filesep,'GoPro.csv']);
 
 %% Convert that csv into a matrix that is easier for later plotting
 
 clc, clear, close all
 
-t = readtable(['..',filesep,'GoPro.csv']);
+t = readtable(['..',filesep,'GoPro',filesep,'GoPro.csv']);
 
 mat = NaN([size(t,1),5]);
 
@@ -54,4 +54,4 @@ for i = 1:size(t,1)
     end
 end
 
-writetable(mat,['..',filesep,'GoPro_sub.csv']);
+writetable(mat,['..',filesep,'GoPro',filesep,'GoPro_sub.csv']);
