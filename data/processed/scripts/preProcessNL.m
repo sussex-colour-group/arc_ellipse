@@ -20,7 +20,7 @@ dataDir = ['..',filesep,'..',filesep,'raw',filesep,'nanoLambda'];
 saveDir = ['..',filesep,'..',filesep,'processed',filesep,'nanoLambda'];
 
 % add the nanolambda scripts to the path
-addpath(['..',filesep,'..',filesep,'..',filesep,'Sussex_nanoLambda',filesep]);
+addpath(['..',filesep,'..',filesep,'..',filesep,'nanoLambda',filesep]);
 
 %% Preprocess data
 
@@ -41,7 +41,7 @@ if strcmp(response,'y')
     % concatenate the MATLAB files from above into a pair of big csv files
     % (one for spectra, and one for everything else)
     % warning: this takes quite a long time to run (~10 mins)
-    arc_NLconcat(saveDir,saveDir)
+    NLconcat(saveDir,saveDir)
 
 end
 
