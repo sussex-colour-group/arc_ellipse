@@ -7,7 +7,7 @@ meta.fontSize.small = 10;
 meta.pltCols = {'r','b'};
 
 % data meta
-meta.variableNames = {'location','season','AxisRatioNormed','EllipseAngle','EllipseArea'};
+meta.variableNames = {'location','season','LogAxisRatio','EllipseAngle','EllipseArea'};
 meta.seasonNames = {'Summer','Autumn','Winter','Spring'};
 meta.locationNames = {'Tromsø','Oslo'};
 meta.aboveBelowNames = {'below','above'};
@@ -133,7 +133,7 @@ end
 
 % figure, histogram(nMeasPerHour)
 
-when_out = [when_locationSplit{1}.dataSubset(:,[1,2,7,8,9]); when_locationSplit{2}.dataSubset(:,[1,2,7,8,9])]; % TODO Replace data.NL with this output once I'm happy with it
+when_out = [when_locationSplit{1}.dataSubset(:,[1,2,6,8,9]); when_locationSplit{2}.dataSubset(:,[1,2,6,8,9])]; % TODO Replace data.NL with this output once I'm happy with it
 
 %% Plots
 

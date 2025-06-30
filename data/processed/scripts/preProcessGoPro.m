@@ -45,7 +45,7 @@ for i = 1:size(t,1)
             mat(i,2) = 4;
         end
 
-        mat(i,3) = t.AxisRatioNormed(i);
+        mat(i,3) = t.NCE(i);
         mat(i,4) = t.EllipseAngle(i);
         mat(i,5) = t.EllipseArea(i);
 
