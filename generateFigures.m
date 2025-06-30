@@ -22,7 +22,7 @@ saveLocation = ['.',filesep,'figs',filesep];
 
 %% Load preprocessed data
 
-data.GoPro = readmatrix([dataDir,filesep,'GoPro_sub.csv']); % generated in data/processed/scripts/preProcessGoPro.m
+data.GoPro = readmatrix([dataDir,filesep,'GoPro',filesep,'GoPro_sub.csv']); % generated in data/processed/scripts/preProcessGoPro.m
 
 data.NL_mb = readmatrix([dataDir,filesep,'nanoLambda',filesep,'NL_sub.csv']); % generated in data/processed/scripts/preProcessNL.m
 
@@ -71,39 +71,91 @@ drawellipse(gca,'SemiAxes',[SemiMajorLength,SemiMinorLength],...
     'Center',[mean(data.NL_mb(:,3)),mean(data.NL_mb(:,4))],...
     'RotationAngle',360-EllipseAngleUnnormed);
 
-%% WIP
+%% Split nanolambda data into hourly chunks
 
 when = readtable(['data',filesep,'processed',filesep,'nanoLambda',filesep,'NL_when.csv']);
 
+%%
+
+clear LogAxisRatioNCE AxisRatioNormed EllipseAngleUnnormed SemiMajorLength SemiMinorLength EllipseArea
+clear Y E uniqueHourIndices
+clear when_locationSplit
+
 for location = [0,1]
 
-    t2 = t(data.NL_mb(:,1) == 1,:).Var1;
-    [Y,E] = discretize(t2,"hour");
-    uniqueHourIndices = unique(Y);
+    when_locationSplit{location+1}.when       =       when(data.NL_mb(:,1) == location,1).Var1;
+    when_locationSplit{location+1}.dataSubset = data.NL_mb(data.NL_mb(:,1) == location,:);
 
-    for i = 1:length(uniqueHourIndices)
+    when_locationSplit{location+1}.hourBinIndices = discretize(when_locationSplit{location+1}.when,"hour");
+    when_locationSplit{location+1}.uniqueHourBinIndices = unique(when_locationSplit{location+1}.hourBinIndices);
+
+    for i = 1:length(when_locationSplit{location+1}.uniqueHourBinIndices)
+        nMeasPerHour(i) = length(when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),3));
         try
-            [LogAxisRatioNCE(i), AxisRatioNormed(i), ~, ~, EllipseAngleUnnormed(i), ~, SemiMajorLength(i), SemiMinorLength(i)] = ...
-                GetAxisRatio(data.NL_mb(Y == uniqueHourIndices(i),3),data.NL_mb(Y == uniqueHourIndices(i),4));
-            EllipseArea(i) = pi * SemiMajorLength(i) * SemiMinorLength(i);
-        catch
-            disp(i)
-            LogAxisRatioNCE(i) = NaN;
-            AxisRatioNormed(i) = NaN;
-            EllipseAngleUnnormed(i) = NaN;
-            SemiMajorLength(i) = NaN;
-            SemiMinorLength(i) = NaN;
-            EllipseArea(i) = NaN;
+            if nMeasPerHour(i)>50
+            [LogAxisRatioNCE{location+1}(i),...
+                AxisRatioNormed{location+1}(i),...
+                ~,...
+                ~,...
+                EllipseAngleUnnormed{location+1}(i),...
+                ~,...
+                SemiMajorLength{location+1}(i),...
+                SemiMinorLength{location+1}(i)] = ...
+                GetAxisRatio(...
+                when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),3),...
+                when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),4));
+
+            EllipseArea{location+1}(i) = pi * SemiMajorLength{location+1}(i) * SemiMinorLength{location+1}(i);
+            else
+                error('bla');
+            end
+        catch %e
+            % disp(e)
+            disp([num2str(location), '-',num2str(i)])
+            disp(numel(when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),3)))
+            
+            LogAxisRatioNCE{location+1}(i) = NaN;
+            AxisRatioNormed{location+1}(i) = NaN;
+            EllipseAngleUnnormed{location+1}(i) = NaN;
+            SemiMajorLength{location+1}(i) = NaN;
+            SemiMinorLength{location+1}(i) = NaN;
+            EllipseArea{location+1}(i) = NaN;
         end
-        location_(i) = unique(data.NL_mb(Y == uniqueHourIndices(i),1));
-        season(i) = unique(data.NL_mb(Y == uniqueHourIndices(i),2));
+
+        when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),6) = LogAxisRatioNCE{location+1}(i);
+        when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),7) = AxisRatioNormed{location+1}(i);
+        when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),8) = EllipseAngleUnnormed{location+1}(i);
+        when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),9) = SemiMajorLength{location+1}(i);
+        when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),10) = SemiMinorLength{location+1}(i);
+        when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),11) = EllipseArea{location+1}(i);
     end
 end
 
+% figure, histogram(nMeasPerHour)
+
+when_out = [when_locationSplit{1}.dataSubset(:,[1,2,7,8,9]); when_locationSplit{2}.dataSubset(:,[1,2,7,8,9])]; % TODO Replace data.NL with this output once I'm happy with it
+
 %% Plots
 
+% arc_ellipse\data\processed\scripts\preProcessGoPro.m
+% mat(i,3) = t.AxisRatioNormed(i);
+% mat(i,4) = t.EllipseAngle(i);
+% mat(i,5) = t.EllipseArea(i);
+
+% Go Pro
 for i = 3:5
     arc_ellipseScatter_splitByLocationAndSeason(data.GoPro,meta,i)
-    arc_saveFig([saveLocation,'ellipseScatter','_',meta.variableNames{i}],meta)
+    arc_saveFig([saveLocation,'ellipseScatter','_GoPro_',meta.variableNames{i}],meta)
 end
+
+%%
+% Nanolambda
+
+for i = 3:5
+    arc_ellipseScatter_splitByLocationAndSeason(when_out,meta,i)
+    arc_saveFig([saveLocation,'ellipseScatter','_NL_',meta.variableNames{i}],meta)
+end
+
+
+
 
