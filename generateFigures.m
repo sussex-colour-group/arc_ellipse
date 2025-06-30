@@ -25,6 +25,7 @@ saveLocation = ['.',filesep,'figs',filesep];
 data.GoPro = readmatrix([dataDir,filesep,'GoPro',filesep,'GoPro_sub.csv']); % generated in data/processed/scripts/preProcessGoPro.m
 
 data.NL_mb = readmatrix([dataDir,filesep,'nanoLambda',filesep,'NL_sub.csv']); % generated in data/processed/scripts/preProcessNL.m
+data.NL_denoised = removeNLdarknoise(data.NL_mb,10);
 
 %data.HS = load(paths.HSProcessedData,'d'); 
 %data.PP = load(paths.PPProcessedData);
