@@ -54,4 +54,4 @@ for i = 1:size(t,1)
     end
 end
 
-writetable(mat,['..',filesep,'GoPro',filesep,'GoPro_sub.csv']);
+writematrix(mat,['..',filesep,'GoPro',filesep,'GoPro_sub.csv']);
