@@ -27,6 +27,9 @@ data.GoPro = readmatrix([dataDir,filesep,'GoPro',filesep,'GoPro_sub.csv']); % ge
 data.NL_mb = readmatrix([dataDir,filesep,'nanoLambda',filesep,'NL_sub.csv']); % generated in data/processed/scripts/preProcessNL.m
 data.NL_denoised = removeNLdarknoise(data.NL_mb,10);
 
+data.HS = readtable([dataDir,filesep,'hyperspectral',filesep,'HS.csv']); % generated in data/processed/scripts/preProcessHS.m
+data.HS = transformHSData(data.HS);
+
 %data.HS = load(paths.HSProcessedData,'d'); 
 %data.PP = load(paths.PPProcessedData);
 
@@ -158,6 +161,14 @@ for i = 3:5
     arc_ellipseScatter_splitByLocationAndSeason(when_out,meta,i)
     title('NL')
     arc_saveFig([saveLocation,'ellipseScatter','_NL_',meta.variableNames{i}],meta)
+end
+
+%% Hyperspectral
+
+for i = 3:5
+    arc_ellipseScatter_splitByLocationAndSeason(data.HS,meta,i)
+    title('HS')
+    arc_saveFig([saveLocation,'ellipseScatter','_HS_',meta.variableNames{i}],meta)
 end
 
 %% Pick some random hours and plot ellipse and 2D hist
