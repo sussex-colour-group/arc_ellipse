@@ -20,7 +20,7 @@ dataDir = ['..',filesep,'..',filesep,'raw',filesep,'nanoLambda'];
 saveDir = ['..',filesep,'..',filesep,'processed',filesep,'nanoLambda'];
 
 % add the nanolambda scripts to the path
-addpath(['..',filesep,'..',filesep,'..',filesep,'nanoLambda',filesep]);
+addpath(['..',filesep,'..',filesep,'..',filesep,'nanolambda',filesep]);
 
 %% Preprocess data
 
@@ -84,5 +84,68 @@ tidyData(contains(concatNLdata.file,'Spring','IgnoreCase',true),2) = 4;
 
 tidyData(:,3:5) = MBarray;
 
-writematrix(tidyData,[saveDir,filesep,'NL_sub.csv']);
-writematrix(concatNLdata.when,[saveDir,filesep,'NL_when.csv'])
+%% Split nanolambda data into hourly chunks and compute ellipse parameters
+
+clc
+
+minN = 50; % miniumum number of measurements within a chunk (otherwise return NaN)
+
+for location = [0,1]
+
+    when_locationSplit{location+1}.when       = concatNLdata.when(tidyData(:,1) == location,1);
+    when_locationSplit{location+1}.dataSubset =          tidyData(tidyData(:,1) == location,:);
+
+    when_locationSplit{location+1}.hourBinIndices = discretize(when_locationSplit{location+1}.when,"hour");
+    when_locationSplit{location+1}.uniqueHourBinIndices = unique(when_locationSplit{location+1}.hourBinIndices);
+
+    for i = 1:length(when_locationSplit{location+1}.uniqueHourBinIndices)
+        nMeasPerHour(i) = length(when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),3));
+        try
+            if nMeasPerHour(i)>minN
+            [LogAxisRatioNCE{location+1}(i),...
+                AxisRatioNormed{location+1}(i),...
+                ~,...
+                ~,...
+                EllipseAngleUnnormed{location+1}(i),...
+                ~,...
+                SemiMajorLength{location+1}(i),...
+                SemiMinorLength{location+1}(i)] = ...
+                GetAxisRatio(...
+                when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),3),...
+                when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),4));
+
+            EllipseArea{location+1}(i) = pi * SemiMajorLength{location+1}(i) * SemiMinorLength{location+1}(i);
+            else
+                error('bla'); % this is just to pass it onto the catch statement - there's probably a "correct" way to do this
+            end
+        catch %e
+            % disp(e)
+            disp("Excluding: ")
+            disp([num2str(location), '-',num2str(i)])
+            disp(numel(when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),3)))
+            
+            LogAxisRatioNCE{location+1}(i) = NaN;
+            AxisRatioNormed{location+1}(i) = NaN;
+            EllipseAngleUnnormed{location+1}(i) = NaN;
+            SemiMajorLength{location+1}(i) = NaN;
+            SemiMinorLength{location+1}(i) = NaN;
+            EllipseArea{location+1}(i) = NaN;
+        end
+
+        when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),6) = LogAxisRatioNCE{location+1}(i);
+        when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),7) = AxisRatioNormed{location+1}(i);
+        when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),8) = EllipseAngleUnnormed{location+1}(i);
+        when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),9) = SemiMajorLength{location+1}(i);
+        when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),10) = SemiMinorLength{location+1}(i);
+        when_locationSplit{location+1}.dataSubset(when_locationSplit{location+1}.hourBinIndices == when_locationSplit{location+1}.uniqueHourBinIndices(i),11) = EllipseArea{location+1}(i);
+    end
+end
+
+% figure, histogram(nMeasPerHour)
+
+%%
+
+tidyData = cat(2,tidyData(:,[1,2]),[when_locationSplit{1}.dataSubset(:,[6,8,9]); when_locationSplit{2}.dataSubset(:,[6,8,9])]);
+
+writematrix(tidyData,[saveDir,filesep,'NL_sub.csv']); % this is 30mb, and quite redundant, so ideally we would pack it (store only one set of values per unique hour index) but I don't have time for this right now
+
