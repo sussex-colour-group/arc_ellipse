@@ -19,8 +19,8 @@ clc, clear, close all
 dataDir = ['..',filesep,'..',filesep,'raw',filesep,'nanoLambda'];
 saveDir = ['..',filesep,'..',filesep,'processed',filesep,'nanoLambda'];
 
-% add the nanolambda scripts to the path
-addpath(['..',filesep,'..',filesep,'..',filesep,'nanolambda',filesep]);
+% add scripts to the path
+addpath(genpath(['..',filesep,'..',filesep,'..',filesep]));
 
 %% Preprocess data
 
@@ -142,6 +142,43 @@ for location = [0,1]
 end
 
 % figure, histogram(nMeasPerHour)
+
+%%
+
+rng(42);
+n = 30;
+randomIndices = when_locationSplit{1,1}.uniqueHourBinIndices(randi(size(when_locationSplit{1,1}.uniqueHourBinIndices,1),[n,1]));
+
+figure, hold on
+tiledlayout(3,10);
+
+for i = 1:length(randomIndices)
+    x = when_locationSplit{1,1}.dataSubset(when_locationSplit{1,1}.hourBinIndices == randomIndices(i),3);
+    y = when_locationSplit{1,1}.dataSubset(when_locationSplit{1,1}.hourBinIndices == randomIndices(i),4);
+
+    meta.figType = "grey";
+    % meta.edges = {linspace(0.66,0.82,40) linspace(0,2,40)};
+    meta.edges = {linspace(0.55,0.9,40) linspace(0,4,40)};
+    specLocus = false; % for some reason having this set to true this makes everything run _very_ slow. TODO investigate
+    nexttile
+    arc_2Dhist(x,y,meta,specLocus);
+
+    center(i,:) = [mean(x,"omitnan"),mean(y,"omitnan")];
+    % EllipseArea(im) = pi * SemiMajorLength(im) * SemiMinorLength(im);
+
+    indind = find(when_locationSplit{1,1}.uniqueHourBinIndices == randomIndices(i));
+    try
+        drawellipse(gca,'SemiAxes',[SemiMajorLength{1,1}(indind),SemiMinorLength{1,1}(indind)],...
+            'Center',center(i,:),...
+            'RotationAngle',360-EllipseAngleUnnormed{1,1}(indind),...
+            'FaceAlpha',0);
+        % colormap('turbo')
+    catch e
+        disp(i)
+        disp(e)
+    end
+
+end
 
 %%
 

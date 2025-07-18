@@ -1,12 +1,16 @@
 %% Plot ellipses over images
 
-clc, clear, %close all
+% plots 2Dhist and ellipse (and image, in the case of GoPro and
+% hyperspectral image)
+
+
+%% Go Pro
+
+clc, clear, close all
 
 addpath(genpath('imageanalysis'));
 
 load('/home/danny/LANShareDownloads/arc_GoProStats_V1.mat','fileList');
-
-%%
 
 % t = readtable(['data',filesep,'processed',filesep,'GoPro',filesep,'GoPro.csv']);
 
@@ -81,22 +85,65 @@ for im = 1:nIm
     ylim([min(meta.edges{2}),max(meta.edges{2})])
 end
 
-%% cross check
+
+% % cross check
 
 [fileList(randomImageIndices).NCE]
 LogAxisRatioNCE
 
-%%
-
 [fileList(randomImageIndices).AxisRatioNormed]
 AxisRatioNormed
-
-%%
 
 [fileList(randomImageIndices).EllipseAngle]
 EllipseAngleUnnormed
 
-%% Do it for the nanolambda data
+%% Nanolambda data
+
+%
+% Use code in preProcessNL.m
+%
+
+%% Hyperspectral
+
+clear, clc, close all
+
+repoHomeDir = ['..',filesep,'..',filesep,'..',filesep];
+addpath(repoHomeDir);
+addpath([repoHomeDir,'imageanalysis',filesep]);
+addpath([repoHomeDir,'hyperspectralAnalysis',filesep]);
+
+LMSimDir = '~/cisc1/projects/colour_arctic/hyperspectralOutputs';
+d = dir([LMSimDir,filesep,'*.mat']);
+
+rng(1) % if we're randomly selecting a subset, make it reproducible
+nIm = 6;
+figure, hold on
+tiledlayout(2,nIm);
+
+for i = randi(size(d,1),[1,nIm])
+    disp(i)
+
+    t = load([d(i).folder,filesep,d(i).name],'LLMImage','SLMImage');
+
+    [LogAxisRatioNCE(i), AxisRatioNormed(i), ~, ~, EllipseAngleUnnormed(i), ~, SemiMajorLength(i), SemiMinorLength(i)] = ...
+        GetAxisRatio(t.LLMImage,t.SLMImage);
+    EllipseArea(i) = pi * SemiMajorLength(i) * SemiMinorLength(i);
+    center(i,:) = [mean(t.LLMImage(:),"omitnan"),mean(t.SLMImage(:),"omitnan")];
+
+    nexttile
+    imshow(imread([LMSimDir,filesep,d(i).name(1:end-10),'.png']))
+
+    nexttile
+    meta.figType = "grey";
+    meta.edges = {linspace(0.66,0.82,40) linspace(0,2,40)};
+    specLocus = false; % for some reason having this set to true this makes everything run _very_ slow. TODO investigate
+    arc_2Dhist(t.LLMImage(:),t.SLMImage(:),meta,specLocus);
+    drawellipse(gca,'SemiAxes',[SemiMajorLength(i),SemiMinorLength(i)],...
+        'Center',center(i,:),...
+        'RotationAngle',360-EllipseAngleUnnormed(i),...
+        'FaceAlpha',0);
+
+end
 
 
 

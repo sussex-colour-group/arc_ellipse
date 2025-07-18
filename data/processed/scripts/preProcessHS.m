@@ -37,16 +37,7 @@ end
 LMSimDir = '~/cisc1/projects/colour_arctic/hyperspectralOutputs';
 d = dir([LMSimDir,filesep,'*.mat']);
 
-drawFigs = false; % parfor doesn't recognise this, so it needs commenting out as well unfortunately
-if drawFigs
-    rng(1) % if we're randomly selecting a subset, make it reproducible
-    nIm = 6;
-    figure, hold on
-    tiledlayout(2,nIm);
-end
-
-for i = 1:size(d,1) %randi(size(d,1),[1,nIm])
-    disp(i)
+parfor i = 1:size(d,1)
 
     t = load([d(i).folder,filesep,d(i).name],'LLMImage','SLMImage');
 
@@ -54,21 +45,6 @@ for i = 1:size(d,1) %randi(size(d,1),[1,nIm])
         GetAxisRatio(t.LLMImage,t.SLMImage);
     EllipseArea(i) = pi * SemiMajorLength(i) * SemiMinorLength(i);
     center(i,:) = [mean(t.LLMImage(:),"omitnan"),mean(t.SLMImage(:),"omitnan")];
-
-    % if drawFigs
-    %     nexttile
-    %     imshow(imread([LMSimDir,filesep,d(i).name(1:end-10),'.png']))
-    % 
-    %     nexttile
-    %     meta.figType = "grey";
-    %     meta.edges = {linspace(0.66,0.82,40) linspace(0,2,40)};
-    %     specLocus = false; % for some reason having this set to true this makes everything run _very_ slow. TODO investigate
-    %     arc_2Dhist(t.LLMImage(:),t.SLMImage(:),meta,specLocus);
-    %     drawellipse(gca,'SemiAxes',[SemiMajorLength(i),SemiMinorLength(i)],...
-    %         'Center',center(i,:),...
-    %         'RotationAngle',360-EllipseAngleUnnormed(i),...
-    %         'FaceAlpha',0);
-    % end
 end
 
 %%
